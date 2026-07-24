@@ -1,0 +1,9 @@
+tests/
+assets/
+docker-compose.yml
+LICENSE
+Makefile
+README.md
+.env.example
+.gitignore
+Dockerfile
