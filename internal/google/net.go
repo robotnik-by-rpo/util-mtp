@@ -25,7 +25,7 @@ func getToken() *GoogleMetaData {
 }
 
 func validToken(tokens *GoogleMetaData) bool{
-	return tokens.accessToken == "" && tokens.folder_id
+	return tokens.accessToken == "" && tokens.folder_id == ""
 }
 
 // Function for sending to Google
