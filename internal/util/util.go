@@ -131,7 +131,7 @@ func RunCLI() (string, error){
 	if data.IsFooter {
 		pdfRender.Pdf.SetFooterFunc(func() {
 			pdfRender.Pdf.SetY(-15)
-			pdfRender.Pdf.SetFont(data.Font, "I", data.Size)
+			pdfRender.Pdf.SetFont(data.Font, "I", data.FontSize)
 			footer := ""
 			if data.Author != "" {
 				footer += data.Author + "  "
