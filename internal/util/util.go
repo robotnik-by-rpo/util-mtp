@@ -79,39 +79,74 @@ func RunCLI() (string, error){
 		return "",fmt.Errorf("Error running CLI: %v",err)
 	}
 
-	fullOutputPath := filepath.Join(data.SavePath, data.Output)
-	if data.SavePath == "" {
-		fullOutputPath = data.Output
+	fullOutputPath := data.Output
+	if data.SavePath != "" {
+		fullOutputPath = filepath.Join(data.SavePath, data.Output)
+	}
+	var opts []mdtopdf.RenderOption
+
+	if data.Ru {
+		opts = append(opts, mdtopdf.WithUnicodeTranslator("cp1251"))
 	}
 
-	params := mdtopdf.PdfRendererParams{
-		OutputFile: fullOutputPath,
+	if data.IsNewPage {
+		opts = append(opts, mdtopdf.IsHorizontalRuleNewPage(true))
 	}
 
-	var pdfRender *mdtopdf.PdfRenderer
-	var renderOptions []mdtopdf.RenderOption	
-	if data.Ru{
-		pdfRender = mdtopdf.NewPdfRenderer(
-			params,
-			mdtopdf.WithUnicodeTranslator("cp1251"),
-		)
-		pdfRender.SetStyle(mdtopdf.Styler{
-            FontFamily: data.Font,
-			Size: data.FontSize,
-        })
-	}else{
-		pdfRender = mdtopdf.NewPdfRenderer(params)
-        pdfRender.SetStyle(mdtopdf.Styler{
-            FontFamily: data.Font,
-			Size: data.FontSize,
-        })
+	theme := mdtopdf.LIGHT
+	customTheme := ""
+	switch strings.ToLower(data.Theme) {
+	case "dark":
+		theme = mdtopdf.DARK
+	case "light", "default", "":
+		theme = mdtopdf.LIGHT
+	default:
+		theme = mdtopdf.CUSTOM
+		customTheme = data.Theme
 	}
 	
-	err = pdfRender.ConvertReader(strings.TrimRight(data.SavePath,"/") +"/"+data.Output, file)
-	if err != nil{
-		log.Fatal("Error convertation")
+	params := mdtopdf.PdfRendererParams{
+		Orientation:     data.Orientation,
+		Papersz:         data.PageSize,
+		PdfFile:         fullOutputPath,
+		Opts:            opts,
+		Theme:           theme,
+		CustomThemeFile: customTheme,
+	}
+	pdfRender := mdtopdf.NewPdfRenderer(params)
+
+	pdfRender.SetStyle(mdtopdf.Styler{
+		FontFamily: data.Font,
+		Size:       data.FontSize,
+	})
+
+	if data.Title != "" {
+		pdfRender.Pdf.SetTitle(data.Title, true)
+	}
+	if data.Author != "" {
+		pdfRender.Pdf.SetAuthor(data.Author, true)
 	}
 
+	// Footer
+	if data.IsFooter {
+		pdfRender.Pdf.SetFooterFunc(func() {
+			pdfRender.Pdf.SetY(-15)
+			pdfRender.Pdf.SetFont(data.Font, "I", data.Size)
+			footer := ""
+			if data.Author != "" {
+				footer += data.Author + "  "
+			}
+			if data.Title != "" {
+				footer += data.Title + "  "
+			}
+			footer += fmt.Sprintf("Page %d", pdfRender.Pdf.PageNo())
+			pdfRender.Pdf.CellFormat(0, 10, footer, "", 0, "C", false, 0, "")
+		})
+	}
+
+	if err := pdfRender.Process(content); err != nil {
+		return "", fmt.Errorf("error converting to PDF: %w", err)
+	}
 	log.Printf("Successful convertation in PDF file - %s\n",fullOutputPath)
 	return fullOutputPath,nil
 }
