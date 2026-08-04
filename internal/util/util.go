@@ -115,10 +115,11 @@ func RunCLI() (string, error){
 	}
 	pdfRender := mdtopdf.NewPdfRenderer(params)
 
-	pdfRender.SetStyle(mdtopdf.Styler{
-		FontFamily: data.Font,
-		Size:       data.FontSize,
-	})
+	pdfRender.Normal = mdtopdf.Styler{
+	Font:    data.Font,
+	Style:   "",             
+	Size:    data.FontSize,
+	}
 
 	if data.Title != "" {
 		pdfRender.Pdf.SetTitle(data.Title, true)
@@ -131,7 +132,7 @@ func RunCLI() (string, error){
 	if data.IsFooter {
 		pdfRender.Pdf.SetFooterFunc(func() {
 			pdfRender.Pdf.SetY(-15)
-			pdfRender.Pdf.SetFont(data.Font, "I", data.FontSize)
+			pdfRender.Pdf.SetFont(data.Font, "I", 8.0)
 			footer := ""
 			if data.Author != "" {
 				footer += data.Author + "  "
