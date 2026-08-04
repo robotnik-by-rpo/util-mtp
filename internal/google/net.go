@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"google.golang.org/api/drive/v3"
 	"golang.org/x/oauth2"
-	"google.golang.org/api/googleapi"
 	"google.golang.org/api/option"
 	"log"
 	"os"
@@ -59,7 +58,7 @@ func SendToGoogleDisk(ctx context.Context, filepath string) error {
 
 	driveFile := &drive.File{Name: fileInfo.Name(), Parents: []string{tokens.folder_id}}
 	call := driveService.Files.Create(driveFile)
-	call = call.Media(file, googleapi.ChunkSize(googleapi.DefaultChunkSize))
+	call = call.Media(file)
 
 	res, err := call.Do()
 	if err != nil{
