@@ -116,9 +116,9 @@ func RunCLI() (string, error){
 	pdfRender := mdtopdf.NewPdfRenderer(params)
 
 	pdfRender.Normal = mdtopdf.Styler{
-	Font:    data.Font,
-	Style:   "",             
-	Size:    data.FontSize,
+		Font:    data.Font,
+		Style:   "",             
+		Size:    data.FontSize,
 	}
 
 	if data.Title != "" {
